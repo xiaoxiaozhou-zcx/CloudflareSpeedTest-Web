@@ -18,31 +18,29 @@ echo "║   ⚠️  CloudflareSpeedTest Web UI - 卸载          ║"
 echo "╚═══════════════════════════════════════════════════╝"
 echo -e "${NC}"
 
-# 确认
 read -p "确定要卸载吗？(y/N): " confirm
 if [[ "$confirm" != "y" && "$confirm" != "Y" ]]; then
     echo "已取消"
     exit 0
 fi
 
-cd "${INSTALL_DIR}" 2>/dev/null || { echo -e "${RED}安装目录不存在${NC}"; exit 1; }
+# 停止并禁用服务
+echo -e "${CYAN}停止服务...${NC}"
+systemctl stop cfst-web 2>/dev/null || true
+systemctl disable cfst-web 2>/dev/null || true
 
-# 停止并删除容器
-if docker compose version &> /dev/null; then
-    docker compose down 2>/dev/null || true
-elif command -v docker-compose &> /dev/null; then
-    docker-compose down 2>/dev/null || true
-fi
-
-# 删除镜像
-docker rmi cfst-web:latest 2>/dev/null || true
+# 删除 systemd 服务文件
+rm -f /etc/systemd/system/cfst-web.service
+systemctl daemon-reload
 
 # 删除安装目录
-read -p "是否删除数据目录 ${INSTALL_DIR}/data？(y/N): " del_data
-if [[ "$del_data" == "y" || "$del_data" == "Y" ]]; then
+read -p "是否删除安装目录 ${INSTALL_DIR} 及所有数据？(y/N): " del_all
+if [[ "$del_all" == "y" || "$del_all" == "Y" ]]; then
     rm -rf "${INSTALL_DIR}"
     echo -e "${GREEN}✅ 已删除所有文件${NC}"
 else
+    # 至少删除程序文件，保留数据
+    rm -f "${INSTALL_DIR}/cfst" "${INSTALL_DIR}/app.py"
     echo -e "${GREEN}✅ 服务已卸载，数据保留在 ${INSTALL_DIR}/data${NC}"
 fi
 

@@ -1,0 +1,11 @@
+.git
+.gitignore
+data/
+__pycache__/
+*.pyc
+.DS_Store
+.vscode/
+.idea/
+README.md
+install.sh
+uninstall.sh

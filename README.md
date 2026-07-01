@@ -29,7 +29,7 @@
 
 2. 执行一键安装脚本：
 ```bash
-curl -fsSL https://raw.githubusercontent.com/你的用户名/CloudflareSpeedTest-Web/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/xiaoxiaozhou-zcx/CloudflareSpeedTest-Web/main/install.sh | bash
 ```
 
 3. 安装完成后，浏览器访问 `http://你的NAS-IP:8080`
@@ -43,7 +43,7 @@ mkdir -p /opt/cfst-web && cd /opt/cfst-web
 
 2. 下载项目文件：
 ```bash
-git clone https://github.com/你的用户名/CloudflareSpeedTest-Web.git .
+git clone https://github.com/xiaoxiaozhou-zcx/CloudflareSpeedTest-Web.git .
 ```
 
 3. 启动服务：

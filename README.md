@@ -2,7 +2,8 @@
 
 > 🚀 基于 [XIU2/CloudflareSpeedTest](https://github.com/XIU2/CloudflareSpeedTest) 的 Web 管理界面，专为飞牛NAS (fnOS) 一键部署设计。
 
-[![Docker](https://img.shields.io/badge/Docker-Ready-blue?logo=docker)](https://www.docker.com/)
+**二进制版，无需 Docker，一键安装即用。**
+
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
 ## ✨ 功能特性
@@ -12,53 +13,20 @@
 - 📊 **结果可视化** - 测速结果表格展示，支持排序和筛选
 - 📁 **历史记录** - 自动保存每次测速结果
 - ⚙️ **灵活配置** - 所有 CloudflareSpeedTest 参数均可在页面配置
-- 🐳 **Docker 部署** - 一键安装，开箱即用
+- 🔧 **二进制运行** - 无需 Docker，直接下载运行
 - 📱 **响应式设计** - 手机、平板、电脑均可使用
-
-## 📸 界面预览
-
-| 测速控制 | 实时日志 | 结果展示 |
-|---------|---------|---------|
-| 参数配置一键启动 | 实时查看测速进度 | 表格展示一键导出 |
 
 ## 🚀 飞牛NAS 一键安装
 
-### 方法一：SSH 安装（推荐）
+SSH 登录你的飞牛NAS，执行：
 
-1. SSH 登录你的飞牛NAS
-
-2. 执行一键安装脚本：
 ```bash
 curl -fsSL https://raw.githubusercontent.com/xiaoxiaozhou-zcx/CloudflareSpeedTest-Web/main/install.sh | bash
 ```
 
-3. 安装完成后，浏览器访问 `http://你的NAS-IP:8080`
+安装完成后，浏览器访问 `http://你的NAS-IP:8080`
 
-### 方法二：Docker Compose 手动安装
-
-1. SSH 登录飞牛NAS，创建项目目录：
-```bash
-mkdir -p /opt/cfst-web && cd /opt/cfst-web
-```
-
-2. 下载项目文件：
-```bash
-git clone https://github.com/xiaoxiaozhou-zcx/CloudflareSpeedTest-Web.git .
-```
-
-3. 启动服务：
-```bash
-docker compose up -d
-```
-
-4. 访问 `http://你的NAS-IP:8080`
-
-### 方法三：飞牛 Docker 管理界面
-
-1. 打开飞牛管理界面 → Docker → 镜像
-2. 拉取镜像（如果已发布到 Docker Hub / GHCR）
-3. 创建容器，映射端口 `8080:8080`，挂载卷 `./data:/data`
-4. 启动容器
+> 默认端口 8080，可通过 `PORT=9090 bash install.sh` 自定义端口。
 
 ## 📖 使用说明
 
@@ -88,70 +56,55 @@ docker compose up -d
 - **TCPing（默认）**：使用 TCP 协议测试延迟，速度快
 - **HTTPing**：使用 HTTP 协议测试延迟，可获取地区码信息
 
-### IP 配置
-
-在「⚙️ IP 配置」页面可以编辑 IP 段数据文件：
-- 支持 CIDR 格式：`104.16.0.0/13`
-- 支持单个 IP：`1.1.1.1`
-- 每行一个
-- 也可以在测速时通过「指定 IP 段」参数直接指定
-
-## 🏗️ 项目结构
-
-```
-CloudflareSpeedTest-Web/
-├── app.py              # Flask 后端服务
-├── Dockerfile          # Docker 镜像构建
-├── docker-compose.yml  # Docker Compose 配置
-├── install.sh          # 飞牛NAS 一键安装脚本
-├── uninstall.sh        # 卸载脚本
-├── requirements.txt    # Python 依赖
-├── ip.txt              # 默认 Cloudflare IP 段
-├── config/
-│   └── settings.json   # 默认配置
-├── web/
-│   ├── templates/
-│   │   └── index.html  # 主页面
-│   └── static/
-│       ├── css/
-│       │   └── style.css
-│       └── js/
-│           └── app.js
-└── data/               # 数据目录（挂载卷）
-    └── results/        # 测速结果 CSV
-```
-
 ## 🔧 常用命令
 
 ```bash
-# 进入项目目录
-cd /opt/cfst-web
-
 # 查看服务状态
-docker compose ps
+systemctl status cfst-web
 
-# 查看日志
-docker compose logs -f
+# 查看实时日志
+journalctl -u cfst-web -f
 
 # 重启服务
-docker compose restart
+systemctl restart cfst-web
 
 # 停止服务
-docker compose down
+systemctl stop cfst-web
 
-# 更新镜像
-docker compose pull && docker compose up -d
+# 启动服务
+systemctl start cfst-web
 
-# 完全卸载
-bash uninstall.sh
+# 卸载
+bash /opt/cfst-web/uninstall.sh
+```
+
+## 📁 安装目录结构
+
+```
+/opt/cfst-web/
+├── cfst                 # CloudflareSpeedTest 二进制
+├── app.py               # Flask Web 服务
+├── ip.txt               # Cloudflare IP 段
+├── requirements.txt
+├── config/
+│   ├── settings.json
+│   └── env              # 环境变量配置
+├── data/
+│   └── results/         # 测速结果 CSV
+└── web/
+    ├── templates/
+    │   └── index.html
+    └── static/
+        ├── css/style.css
+        └── js/app.js
 ```
 
 ## ⚠️ 注意事项
 
-1. **网络模式**：建议使用 `host` 网络模式以获得最准确的测速结果，避免 Docker NAT 影响
-2. **代理干扰**：测速时请关闭 NAS 上的代理软件，否则结果不准确
-3. **IPv6**：默认使用 IPv4 IP 段，如需 IPv6 请替换 ip.txt 内容
-4. **数据持久化**：测速结果保存在 `data/results/` 目录，不会因容器重启丢失
+1. **代理干扰**：测速时请关闭 NAS 上的代理软件，否则结果不准确
+2. **IPv6**：默认使用 IPv4 IP 段，如需 IPv6 请替换 `/opt/cfst-web/ip.txt`
+3. **端口冲突**：如果 8080 端口被占用，安装时用 `PORT=其他端口 bash install.sh`
+4. **首次测速**：建议先随便跑几个 IP 预热，第二次结果更准
 
 ## 📄 License
 

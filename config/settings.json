@@ -1,0 +1,9 @@
+{
+  "default_threads": 200,
+  "default_ping_times": 4,
+  "default_download_count": 10,
+  "default_download_time": 10,
+  "default_port": 443,
+  "max_log_lines": 5000,
+  "result_keep_days": 30
+}

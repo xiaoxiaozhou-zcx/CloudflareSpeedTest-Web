@@ -138,8 +138,17 @@ done
 # ─── 安装 Python 依赖 ───────────────────────────────────────────────────
 echo ""
 echo -e "${CYAN}📦 安装 Python 依赖...${NC}"
-${PIP_CMD} install --quiet flask 2>/dev/null || python3 -m pip install --quiet flask 2>/dev/null
-echo -e "${GREEN}✅ 依赖安装完成${NC}"
+# 尝试多种方式安装，兼容不同环境
+if ${PIP_CMD} install flask 2>&1; then
+    echo -e "${GREEN}✅ 依赖安装完成${NC}"
+elif python3 -m pip install --break-system-packages flask 2>&1; then
+    echo -e "${GREEN}✅ 依赖安装完成 (--break-system-packages)${NC}"
+elif apt-get update -qq && apt-get install -y -qq python3-flask 2>&1; then
+    echo -e "${GREEN}✅ 依赖安装完成 (apt)${NC}"
+else
+    echo -e "${RED}❌ Flask 安装失败，请手动执行: pip3 install flask${NC}"
+    exit 1
+fi
 
 # ─── 写入配置 ───────────────────────────────────────────────────────────
 cat > "${INSTALL_DIR}/config/env" << EOF
